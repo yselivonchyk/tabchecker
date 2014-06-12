@@ -9,6 +9,7 @@ csproj.user
 *~
 *.swp
 *.nupkg
+*.nuspec
 TestResults
 LocalTestRun.testrunconfig
 AutoMoq/TestResult
