@@ -13,7 +13,6 @@ namespace TabChecker.UI
 		{
 			Console.WriteLine("---- Greetings, HUMAN! ----");
 			Console.WriteLine(Logic.GetInfo());
-			Console.ReadLine();
 		}
 	}
 }
