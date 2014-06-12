@@ -28,13 +28,12 @@ Function GetLatestVersionNumber(){
 }
 
 Function CreateTagForCommit($tagName){
-	Write-Host "HEHEHEHOHOHO"
 	&"git" "tag" $tagName
 	&"git" "push" "origin" $tagName
 }
 
 Function GetNextVersionNumber($currentVersion, $versionType, $branch){
-	If($branch -ne "master" -and $versionType -ne "alpha"){
+	If($branch -eq "master" -and $versionType -ne "alpha"){
 		Write-Host "It is not allowed to create release version/package from development branches. Adjust this script to do so." -foregroundcolor red
 		EXIT
 	}
