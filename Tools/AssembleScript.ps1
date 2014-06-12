@@ -92,7 +92,7 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 #------------------
 
 #build the project first
-&"Build.cmd"
+&"./Build.cmd"
 
 #check if git repo exits
 $gitBranch = &"git" "symbolic-ref" "--short" "HEAD"
