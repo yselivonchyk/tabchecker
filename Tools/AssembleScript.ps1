@@ -5,6 +5,7 @@ Param(
 
 $nugetExe = "./NuGet.exe"
 $templateNuspecFile = "NuspecTemplates/Sample.nuspec"
+$templateNuspecFiles = "NuspecTemplates/"
 $tempNuspecFile = "Sample.nuspec"
 $defaultVersion = "1.0.0"
 
@@ -114,21 +115,25 @@ Else{
 }
 
 #Pack package
-(Get-Content $templateNuspecFile) | 
-Foreach-Object {$_ -replace "{version}", $version} | 
-Set-Content $tempNuspecFile
-&$nugetExe "pack" $tempNuspecFile
+
+Get-ChildItem $templateNuspecFiles -Filter *.nuspec | `
+Foreach-Object{
+	$nuspecName = $_.Name	
+	(Get-Content $_.FullName) | 
+	Foreach-Object {$_ -replace "{version}", $version} | 
+	Set-Content $nuspecName
+	&$nugetExe "pack" $nuspecName	
+}
+
+## single nuspec file
+#(Get-Content $templateNuspecFile) | 
+#Foreach-Object {$_ -replace "{version}", $version} | 
+#Set-Content $tempNuspecFile
+#&$nugetExe "pack" $tempNuspecFile
 
 #Mark commit with a tag
 if($versionType -ne "alpha"){
 	CreateTagForCommit($version)
 }
 
-
 EXIT
-
-#reserved for future use
-$gitCommit = &"git" "rev-list" "HEAD" "--count"
-$gitBranch = &"git" "symbolic-ref" "--short" "HEAD"
-&$nugetExe "pack" $nuspecPath #"-OutputDirectory" $currentPackageDir
-#&$nugetExe "push" MIP.AutoMoq.1.6.1.1.nupkg br3dZd! -s http://nuget.leoburnett.de
