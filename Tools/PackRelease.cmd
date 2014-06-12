@@ -1,2 +1,2 @@
-powershell -noexit -file "AssembleScript.ps1" "alpha"
+powershell -noexit -file "AssembleScript.ps1" "minor"
 PAUSE

@@ -1,2 +1,2 @@
-powershell -noexit -file "SubmitNugetPackages.ps1" "commiiii" "braaa"
+copy "*.nupkg" "d:\PersonalStorage\NugetSource\"
 PAUSE
