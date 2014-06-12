@@ -91,6 +91,10 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 #Main
 #------------------
 
+#build the project first
+&"Build.cmd"
+
+#check if git repo exits
 $gitBranch = &"git" "symbolic-ref" "--short" "HEAD"
 If(-not $gitBranch){
 	Write-Host "Git branch info could not be found. Either your code is not associated with git repository or git console tools are not installed." -foregroundcolor red
