@@ -33,7 +33,7 @@ Function CreateTagForCommit($tagName){
 }
 
 Function GetNextVersionNumber($currentVersion, $versionType, $branch){
-	If($branch -eq "master" -and $versionType -ne "alpha"){
+	If($branch -ne "master" -and $versionType -ne "alpha"){
 		Write-Host "It is not allowed to create release version/package from development branches. Adjust this script to do so." -foregroundcolor red
 		EXIT
 	}
