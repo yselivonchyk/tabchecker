@@ -4,7 +4,8 @@ Param(
 )
 
 $nugetExe = "./NuGet.exe"
-$tempNuspecFile = "temp.nuspec"
+$templateNuspecFile = "NuspecTemplates/Sample.nuspec"
+$tempNuspecFile = "Sample.nuspec"
 $defaultVersion = "1.0.0"
 
 Function GetLatestVersionNumber(){
@@ -92,6 +93,7 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 
 #build the project first
 &"./Build.cmd"
+&"./CleanUpFiles.cmd"
 
 #check if git repo exits
 $gitBranch = &"git" "symbolic-ref" "--short" "HEAD"
@@ -112,7 +114,7 @@ Else{
 }
 
 #Pack package
-(Get-Content "Template.nuspec") | 
+(Get-Content $templateNuspecFile) | 
 Foreach-Object {$_ -replace "{version}", $version} | 
 Set-Content $tempNuspecFile
 &$nugetExe "pack" $tempNuspecFile
