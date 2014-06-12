@@ -11,6 +11,7 @@ namespace TabChecker.UI
 	{
 		static void Main(string[] args)
 		{
+			Console.WriteLine("---- Greetings, HUMAN! ----");
 			Console.WriteLine(Logic.GetInfo());
 			Console.ReadLine();
 		}
