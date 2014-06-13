@@ -81,6 +81,7 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 	}		
 		
 	$versionString = "" + $versionParts[0] + "." + $versionParts[1] + "." + $versionParts[2] + "." + $versionParts[3]
+	$versionString = "" + '{0}.{1}.{2}.{3}' -f $versionParts[0], $versionParts[1], $versionParts[2], $versionParts[3]
 	
 	if($versionType -eq "alpha"){
 		$versionString += "-alpha" + ('{0:yyyyMMddHHmmss}' -f (Get-Date).ToUniversalTime())
