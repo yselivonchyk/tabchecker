@@ -12,7 +12,7 @@ namespace TabChecker.UI
 		static void Main(string[] args)
 		{
 			Console.WriteLine("---- Greetings, HUMAN! ----");
-			Console.WriteLine("I am supernew overvalued feature2 for gitflow testing");
+			Console.WriteLine("I am supernew overvalued feature2 for gitflow testing in release");
 			Console.WriteLine(Logic.GetInfo());
 		}
 	}
