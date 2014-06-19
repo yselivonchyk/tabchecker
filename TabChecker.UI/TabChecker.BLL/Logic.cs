@@ -10,7 +10,7 @@ namespace TabChecker.BLL
     {
 	    public static string GetInfo()
 	    {
-		    return "TabChecker";
+		    return "TabChecker for feature 3";
 	    }
     }
 }
