@@ -45,8 +45,9 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 	[int[]] $versionParts =  
 	[int32]::Parse($currentVersion.Split(".")[0]), # major
 	[int32]::Parse($currentVersion.Split(".")[1]), # minor
-	[int32]::Parse($currentVersion.Split(".")[2]), # patch
-	(&"git" "rev-list" "HEAD" "--count") # build. Is relevant only for master branch	
+	[int32]::Parse($currentVersion.Split(".")[2]) # patch
+	#with usage of build number. Severely discouraged.
+	#,(&"git" "rev-list" "HEAD" "--count") # build. Is relevant only for master branch	
 
 	
 	switch -wildcard ($versionType) 
@@ -72,7 +73,7 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
         "alpha"  {
 			Write-Host "creating alpha version"
 			$versionParts[2]++
-			$versionParts[3] = 0 
+			#$versionParts[3] = 0 
 		} 
         default {
 			Write-Host  "Unknown build type"
@@ -80,8 +81,9 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 		}
 	}		
 		
-	$versionString = "" + $versionParts[0] + "." + $versionParts[1] + "." + $versionParts[2] + "." + $versionParts[3]
-	$versionString = "" + '{0}.{1}.{2}.{3}' -f $versionParts[0], $versionParts[1], $versionParts[2], $versionParts[3]
+	#with usage of build number. Severely discouraged.
+	#$versionString = "" + '{0}.{1}.{2}.{3}' -f $versionParts[0], $versionParts[1], $versionParts[2], $versionParts[3]
+	$versionString = "" + '{0}.{1}.{2}' -f $versionParts[0], $versionParts[1], $versionParts[2]
 	
 	if($versionType -eq "alpha"){
 		$versionString += "-alpha" + ('{0:yyyyMMddHHmmss}' -f (Get-Date).ToUniversalTime())
@@ -101,7 +103,8 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 $gitBranch = &"git" "symbolic-ref" "--short" "HEAD"
 If(-not $gitBranch){
 	Write-Host "Git branch info could not be found. Either your code is not associated with git repository or git console tools are not installed." -foregroundcolor red
-	EXIT
+	#$manualVersion = GetNextVersionNumber '1.0.0' 'alpha' 'no_branch'
+	#EXIT
 }
 Write-Host "Current branch is" $gitBranch	
 #Get version number
