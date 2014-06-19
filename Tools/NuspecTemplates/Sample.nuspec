@@ -1,0 +1,17 @@
+<?xml version="1.0" ?> 
+  <package>
+    <metadata>
+    <id>TabChecker.UI</id> 
+    <version>{version}</version> 
+    <title>TabChecker.UI package</title> 
+    <authors>y.selivonchyk</authors> 
+    <owners>y.selivonchyk</owners> 
+    <requireLicenseAcceptance>false</requireLicenseAcceptance> 
+    <description>This is a package build during testing. Create several packages from one project</description> 
+    <releaseNotes></releaseNotes> 
+    <copyright>Copyright 2014</copyright> 
+  </metadata>
+  <files>
+    <file src="..\TabChecker.UI\TabChecker.UI\bin\Release\*.dll" target="lib"></file>
+  </files>
+</package>
