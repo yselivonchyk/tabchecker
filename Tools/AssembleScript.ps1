@@ -20,9 +20,10 @@ Function GetLatestVersionNumber(){
 	}
 	
 	Write-Host "Tags:" $gitTags
-	$latest = $gitTags[0]
-	Foreach($tag in $gitTags.GetEnumerator()){		
-	    if($latest.CompareTo($tag) -lt 0){
+	$latest = '1.0.0'
+	Foreach($tag in $gitTags.GetEnumerator()){
+		Write-Host $tag ($tag -match '^\d+.\d+.\d+')
+	    if($latest.CompareTo($tag) -lt 0 -and $tag -match '^\d+.\d+.\d+'){
             $latest = $tag;
 		}
     }
