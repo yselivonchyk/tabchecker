@@ -11,7 +11,7 @@ Write-Host 'Set version manualy:' $manualVersion
 Write-Host 'Nuspec source folder:'$nuspecTemplatesFolder
 Write-Host 'Package output folder:' $packageOutputFolder
 
-$nugetExe = "./NuGet.exe"
+$nugetExe = $MyDir = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) + "./NuGet.exe"
 $templateNuspecFile = "NuspecTemplates/Sample.nuspec"
 #$tempNuspecFile = "Sample.nuspec"
 
@@ -26,7 +26,7 @@ Function GetLatestVersionNumber(){
 	}
 	
 	Write-Host "Tags:" $gitTags
-	$latest = '1.0.0'
+	$latest = $defaultVersion
 	Foreach($tag in $gitTags.GetEnumerator()){
 		Write-Host $tag ($tag -match '^\d+.\d+.\d+')
 	    if($latest.CompareTo($tag) -lt 0 -and $tag -match '^\d+.\d+.\d+'){
@@ -103,8 +103,7 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 #------------------
 
 #build the project first
-&"./Build.cmd"
-&"./CleanUpFiles.cmd"
+&([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) + "./CleanUpFiles.cmd")
 
 #check if git repo exits
 $gitBranch = &"git" "symbolic-ref" "--short" "HEAD"
