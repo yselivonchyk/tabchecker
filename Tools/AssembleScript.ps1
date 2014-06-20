@@ -1,12 +1,18 @@
 Param(
   [string]$versionType,
-  [string]$manualVersion
+  [string]$manualVersion,
+  [string]$nuspecTemplatesFolder = "NuspecTemplates/",
+  [string]$packageOutputFolder = ""
 )
+
+Write-Host 'Version Type:' $versionType
+Write-Host 'Set version manualy:' $manualVersion
+Write-Host 'Nuspec source folder:'$nuspecTemplatesFolder
+Write-Host 'Package output folder:' $packageOutputFolder
 
 $nugetExe = "./NuGet.exe"
 $templateNuspecFile = "NuspecTemplates/Sample.nuspec"
-$templateNuspecFiles = "NuspecTemplates/"
-$tempNuspecFile = "Sample.nuspec"
+#$tempNuspecFile = "Sample.nuspec"
 $defaultVersion = "1.0.0"
 
 Function GetLatestVersionNumber(){
@@ -121,13 +127,18 @@ Else{
 
 #Pack package
 
-Get-ChildItem $templateNuspecFiles -Filter *.nuspec | `
+Get-ChildItem $nuspecTemplatesFolder -Filter *.nuspec | `
 Foreach-Object{
 	$nuspecName = $_.Name	
 	(Get-Content $_.FullName) | 
 	Foreach-Object {$_ -replace "{version}", $version} | 
 	Set-Content $nuspecName
-	&$nugetExe "pack" $nuspecName	
+	If([System.String]::IsNullOrEmpty($manualVersion)){	
+		&$nugetExe "pack" $nuspecName
+	}
+	Else{
+		&$nugetExe "pack" $nuspecName '-OutputDirectory' $packageOutputFolder
+	}	
 }
 
 ## single nuspec file
