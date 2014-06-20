@@ -2,7 +2,8 @@ Param(
   [string]$versionType,
   [string]$manualVersion,
   [string]$nuspecTemplatesFolder = "NuspecTemplates/",
-  [string]$packageOutputFolder = ""
+  [string]$packageOutputFolder = "",
+  [string]$defaultVersion = "1.0.0"
 )
 
 Write-Host 'Version Type:' $versionType
@@ -13,7 +14,6 @@ Write-Host 'Package output folder:' $packageOutputFolder
 $nugetExe = "./NuGet.exe"
 $templateNuspecFile = "NuspecTemplates/Sample.nuspec"
 #$tempNuspecFile = "Sample.nuspec"
-$defaultVersion = "1.0.0"
 
 Function GetLatestVersionNumber(){
 	$gitTags = &"git" "tag"
