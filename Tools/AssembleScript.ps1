@@ -2,7 +2,7 @@ Param(
   [string]$versionType,
   [string]$manualVersion,
   [string]$nuspecTemplatesFolder = "NuspecTemplates/",
-  [string]$packageOutputFolder = "",
+  [string]$packageOutputFolder =  [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition),
   [string]$defaultVersion = "1.0.0"
 )
 
@@ -102,8 +102,11 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 #Main
 #------------------
 
-#build the project first
-&([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) + "./CleanUpFiles.cmd")
+# Clean up existing nuspec files in the script folder
+$scriptFolder = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
+Remove-Item ($scriptFolder + '\*') -include *.nuspec
+# Move existing packages in output folder
+Move-Item ($packageOutputFolder + '\*.nupkg') ($packageOutputFolder + '\PackageHistory') 
 
 #check if git repo exits
 $gitBranch = &"git" "symbolic-ref" "--short" "HEAD"
