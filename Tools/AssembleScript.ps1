@@ -133,7 +133,7 @@ Foreach-Object{
 	(Get-Content $_.FullName) | 
 	Foreach-Object {$_ -replace "{version}", $version} | 
 	Set-Content $nuspecName
-	If([System.String]::IsNullOrEmpty($manualVersion)){	
+	If([System.String]::IsNullOrEmpty($packageOutputFolder)){	
 		&$nugetExe "pack" $nuspecName
 	}
 	Else{
