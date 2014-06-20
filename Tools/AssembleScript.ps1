@@ -19,9 +19,9 @@ Function GetLatestVersionNumber(){
 	$gitTags = &"git" "tag"
 	If(-not $gitTags){
 		Write-Host "No existing version defined. Returning default." -foregroundcolor red
-		Write-Host $defaultVersion
-		Write-Host "Press any key to continue."
-		$donotwriteittovar = [Console]::ReadKey()
+		Write-Host "default version:" $defaultVersion
+		#Write-Host "Press any key to continue."
+		#$donotwriteittovar = [Console]::ReadKey()
 		return $defaultVersion
 	}
 	
@@ -106,9 +106,14 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 $scriptFolder = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
 Remove-Item ($scriptFolder + '\*') -include *.nuspec
 # Move existing packages in output folder
-Move-Item ($packageOutputFolder + '\*.nupkg') ($packageOutputFolder + '\PackageHistory') 
+$packageHistory = Join-Path -path $packageOutputFolder -childpath 'PackageHistory'
+Write-host '111' $packageHistory
+if(!(Test-Path -Path $packageHistory)){
+    New-Item -ItemType directory -Path $packageHistory
+}
+Move-Item ($packageOutputFolder + '\*.nupkg') $packageHistory -force
 
-#check if git repo exits
+#check if git repo exists
 $gitBranch = &"git" "symbolic-ref" "--short" "HEAD"
 If(-not $gitBranch){
 	Write-Host "Git branch info could not be found. Either your code is not associated with git repository or git console tools are not installed." -foregroundcolor red
@@ -117,8 +122,7 @@ If(-not $gitBranch){
 }
 Write-Host "Current branch is" $gitBranch	
 #Get version number
-If([System.String]::IsNullOrEmpty($manualVersion)){		
-	
+If([System.String]::IsNullOrEmpty($manualVersion)){
 	$latestVersion = GetLatestVersionNumber	
 	Write-Host "Latest version is" $latestVersion	
 	$version = GetNextVersionNumber $latestVersion $versionType $gitBranch	
@@ -127,19 +131,18 @@ Else{
 	$version = $manualVersion	
 }
 
-#Pack package
-
+#Pack package. Transform each nuspec file beforehand
 Get-ChildItem $nuspecTemplatesFolder -Filter *.nuspec | `
 Foreach-Object{
 	$nuspecName = $_.Name	
 	(Get-Content $_.FullName) | 
 	Foreach-Object {$_ -replace "{version}", $version} | 
-	Set-Content $nuspecName
+	Set-Content (Join-Path -path $scriptFolder -childpath $nuspecName)
 	If([System.String]::IsNullOrEmpty($packageOutputFolder)){	
-		&$nugetExe "pack" $nuspecName
+		&$nugetExe "pack" (Join-Path -path $scriptFolder -childpath $nuspecName)
 	}
 	Else{
-		&$nugetExe "pack" $nuspecName '-OutputDirectory' $packageOutputFolder
+		&$nugetExe "pack" (Join-Path -path $scriptFolder -childpath $nuspecName) '-OutputDirectory' $packageOutputFolder
 	}	
 }
 
