@@ -1,10 +1,17 @@
 Param(
   [string]$versionType,
   [string]$manualVersion,
-  [string]$nuspecTemplatesFolder = "NuspecTemplates/",
-  [string]$packageOutputFolder =  [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition),
+  [string]$nuspecTemplatesFolder,
+  [string]$packageOutputFolder,
   [string]$defaultVersion = "1.0.0"
 )
+
+if([System.String]::IsNullOrEmpty($packageOutputFolder)){
+	$packageOutputFolder =  [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
+}
+if([System.String]::IsNullOrEmpty($nuspecTemplatesFolder)){
+	$nuspecTemplatesFolder =  "NuspecTemplates/"
+}
 
 Write-Host 'Version Type:' $versionType
 Write-Host 'Set version manualy:' $manualVersion
@@ -41,22 +48,7 @@ Function CreateTagForCommit($tagName){
 	&"git" "push" "origin" $tagName
 }
 
-Function GetNextVersionNumber($currentVersion, $versionType, $branch){
-	If($branch -ne "master" -and $versionType -ne "alpha"){
-		Write-Host "It is not allowed to create release version/package from development branches. Adjust this script to do so." -foregroundcolor red
-		EXIT
-	}
-	#Write-Host "currentVersion: " + $currentVersion
-	
-	#restore previous version parts
-	[int[]] $versionParts =  
-	[int32]::Parse($currentVersion.Split(".")[0]), # major
-	[int32]::Parse($currentVersion.Split(".")[1]), # minor
-	[int32]::Parse($currentVersion.Split(".")[2]) # patch
-	#with usage of build number. Severely discouraged.
-	#,(&"git" "rev-list" "HEAD" "--count") # build. Is relevant only for master branch	
-
-	
+Function IncrementBuildNumber($versionParts, $versionType){
 	switch -wildcard ($versionType) 
     { 
         "major" {
@@ -86,15 +78,59 @@ Function GetNextVersionNumber($currentVersion, $versionType, $branch){
 			Write-Host  "Unknown build type"
 			EXIT
 		}
-	}		
-		
-	#with usage of build number. Severely discouraged.
-	#$versionString = "" + '{0}.{1}.{2}.{3}' -f $versionParts[0], $versionParts[1], $versionParts[2], $versionParts[3]
+	}
+}
+
+Function GetNextVersionNumberGIT($currentVersion, $versionType, $branch){
+	If($branch -ne "master" -and $versionType -ne "alpha"){
+		Write-Host "It is not allowed to create release version/package from development branches. Adjust this script to do so." -foregroundcolor red
+		EXIT
+	}
+	#Write-Host "currentVersion: " + $currentVersion
+	
+	#restore previous version parts
+	[int[]] $versionParts =  
+	[int32]::Parse($currentVersion.Split(".")[0]), # major
+	[int32]::Parse($currentVersion.Split(".")[1]), # minor
+	[int32]::Parse($currentVersion.Split(".")[2]) # patch
+	
+	IncrementBuildNumber $versionParts $versionType		
+	
 	$versionString = "" + '{0}.{1}.{2}' -f $versionParts[0], $versionParts[1], $versionParts[2]
 	
 	if($versionType -eq "alpha"){
 		$versionString += "-alpha" + ('{0:yyyyMMddHHmmss}' -f (Get-Date).ToUniversalTime())
 	}
+	return $versionString
+}
+
+Function GetNextVersionNumberSVN($currentVersion, $versionType, $branch){
+	$svnInfo = &"svn" "info"
+	Write-Host "SVN INFO: " $svnInfo
+
+	Foreach($svnLine in $svnInfo.GetEnumerator()){
+		If($svnLine.Contains("Revision")){				
+			 $buildNumber = $svnLine.Split(" ")[1]
+			 Write-Host "Current build number:" $buildNumber -foregroundcolor yellow
+		}
+    }	
+
+	#restore previous version parts
+	[int[]] $versionParts =  
+	[int32]::Parse($currentVersion.Split(".")[0]), # major
+	[int32]::Parse($currentVersion.Split(".")[1]), # minor
+	[int32]::Parse($currentVersion.Split(".")[2]) # patch
+	
+	IncrementBuildNumber $versionParts $versionType
+		
+	$versionString = "" + '{0}.{1}.{2}.{3}' -f $versionParts[0], $versionParts[1], $versionParts[2], $buildNumber
+	
+	if($versionType -eq "alpha"){
+		$versionString += "-alpha" + ('{0:yyyyMMddHHmmss}' -f (Get-Date).ToUniversalTime())
+	}
+	Write-Host "Version string:" $versionString  -foregroundcolor yellow
+	EXIT
+
 	return $versionString
 }
 
@@ -124,8 +160,14 @@ Write-Host "Current branch is" $gitBranch
 #Get version number
 If([System.String]::IsNullOrEmpty($manualVersion)){
 	$latestVersion = GetLatestVersionNumber	
-	Write-Host "Latest version is" $latestVersion	
-	$version = GetNextVersionNumber $latestVersion $versionType $gitBranch	
+	Write-Host "Latest version is" $latestVersion
+	If($gitBranch){
+		$version = GetNextVersionNumberGIT $latestVersion $versionType $gitBranch
+	}	
+	Else{
+		$version = GetNextVersionNumberSVN $latestVersion $versionType
+	}
+	Write-Host "Version string:" $version  -foregroundcolor yellow	
 }
 Else{
 	$version = $manualVersion	
