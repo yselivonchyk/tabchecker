@@ -25,7 +25,7 @@ $templateNuspecFile = "NuspecTemplates/Sample.nuspec"
 Function GetLatestVersionNumber(){
 	$gitTags = &"git" "tag"
 	If(-not $gitTags){
-		Write-Host "No existing version defined. Returning default." -foregroundcolor red
+		Write-Host "No existing version defined. Returning default." -foregroundcolor yellow
 		Write-Host "default version:" $defaultVersion
 		#Write-Host "Press any key to continue."
 		#$donotwriteittovar = [Console]::ReadKey()
@@ -74,8 +74,11 @@ Function IncrementBuildNumber($versionParts, $versionType){
 			$versionParts[2]++
 			#$versionParts[3] = 0 
 		} 
+		"current"  {
+			Write-Host "Caution. You are creating a package with package number that already exists. Do not commit package with" -foregroundcolor red
+		}
         default {
-			Write-Host  "Unknown build type"
+			Write-Host  "Unknown build type" -foregroundcolor red
 			EXIT
 		}
 	}
@@ -128,9 +131,6 @@ Function GetNextVersionNumberSVN($currentVersion, $versionType, $branch){
 	if($versionType -eq "alpha"){
 		$versionString += "-alpha" + ('{0:yyyyMMddHHmmss}' -f (Get-Date).ToUniversalTime())
 	}
-	Write-Host "Version string:" $versionString  -foregroundcolor yellow
-	EXIT
-
 	return $versionString
 }
 
